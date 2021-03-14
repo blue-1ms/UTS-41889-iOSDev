@@ -9,7 +9,7 @@
 import XCTest
 import GameKit // for deterministic random number generator
 
-let randomSource = GKLinearCongruentialRandomSource(seed: 6)
+let randomSource = GKLinearCongruentialRandomSource(seed: 9)
 
 let calcBundle = Bundle(identifier: "UTS.CalcTest")!
 let calcPath = ProcessInfo.processInfo.environment["CALC_PATH"] ?? calcBundle.path(forResource: "calc", ofType: nil)
@@ -17,11 +17,14 @@ let calcPath = ProcessInfo.processInfo.environment["CALC_PATH"] ?? calcBundle.pa
 enum calcError: Error {
     case exitStatus(Int32)
     case timeout
+    case launchFailed
 }
 extension calcError: Equatable {
     static func ==(lhs: calcError, rhs: calcError)->Bool {
         switch (lhs, rhs) {
         case (.timeout, .timeout):
+            return true
+        case (.launchFailed, .launchFailed):
             return true
         default:
             return false
@@ -34,10 +37,14 @@ class calcProcess {
     var output: String
     var status: calcError?
     
-    init(_ args:Any...) {
+    convenience init(_ args:Any...) {
         let arguments = args.map { (a:Any) -> String in
             String(describing:a)
         }
+        self.init(arguments)
+    }
+    
+    init(_ arguments: [String]) {
         input = "calc " + arguments.joined(separator: " ")
         
         let task = Process()
@@ -45,7 +52,16 @@ class calcProcess {
         task.standardOutput = stdout
         task.launchPath = calcPath
         task.arguments = arguments
-        task.launch()
+        do {
+            task.launch()
+            if !task.isRunning {
+                throw calcError.launchFailed
+            }
+        } catch _ {
+            output = "<Failed to Launch>"
+            status = calcError.launchFailed
+            return
+        }
         
         var timedOut = false
         DispatchQueue.main.asyncAfter(deadline: .now()+5.0) {
@@ -54,15 +70,16 @@ class calcProcess {
         }
         task.waitUntilExit()
         
+        let data: Data = stdout.fileHandleForReading.readDataToEndOfFile()
+        output = String(bytes: data, encoding: String.Encoding.utf8)!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        
         if (timedOut) {
             status = calcError.timeout
+            output += "<Timed Out>"
         }
         else if (task.terminationStatus != 0) {
             status = calcError.exitStatus(task.terminationStatus)
         }
-        
-        let data: Data = stdout.fileHandleForReading.readDataToEndOfFile()
-        output = String(bytes: data, encoding: String.Encoding.utf8)!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 }
 
@@ -82,6 +99,14 @@ class CalcTest: XCTestCase {
         
         let task4 = calcProcess(0)
         XCTAssertEqual(task4.output, String(0), task4.input)
+        
+        let n5 = Int(Int32.max) - randomSource.nextInt(upperBound:1000)
+        let task5 = calcProcess(n5)
+        XCTAssertEqual(task5.output, String(n5), task5.input)
+        
+        let n6 = Int(Int32.min) + randomSource.nextInt(upperBound:1000)
+        let task6 = calcProcess(n6)
+        XCTAssertEqual(task6.output, String(n6), task6.input)
     }
     
     func testInvalidInput() {
@@ -105,7 +130,15 @@ class CalcTest: XCTestCase {
         XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
         XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
         
+        task = calcProcess("10101", "10110")
+        XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
+        XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
+        
         task = calcProcess("33", "-")
+        XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
+        XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
+        
+        task = calcProcess("66", "-6")
         XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
         XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
         
@@ -120,6 +153,26 @@ class CalcTest: XCTestCase {
         task = calcProcess("50%", "+", "25%")
         XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
         XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
+        
+        task = calcProcess("3", "x", "4.5.6")
+        XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
+        XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
+        
+        task = calcProcess("7", "foo", "8")
+        XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
+        XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
+        
+        task = calcProcess("12", "x", "/", "2")
+        XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
+        XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
+        
+        task = calcProcess("12", "+")
+        XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
+        XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
+        
+        task = calcProcess("12", "++", "12")
+        XCTAssertNotNil(task.status, "exit with nonzero status on invalid input: \(task.input)")
+        XCTAssert(task.status != calcError.timeout, "exit with nonzero status on invalid input: \(task.input)")
     }
     
     func testAdd() {
@@ -130,6 +183,9 @@ class CalcTest: XCTestCase {
         let n4 = randomSource.nextInt(upperBound:100)-100
         
         task = calcProcess(n1, "+", n2)
+        XCTAssertEqual(task.output, String(n1 + n2), task.input)
+        
+        task = calcProcess(n1, "+", "+\(n2)")
         XCTAssertEqual(task.output, String(n1 + n2), task.input)
         
         task = calcProcess(n1, "+", n3)
@@ -150,7 +206,27 @@ class CalcTest: XCTestCase {
         task = calcProcess(n1, "+", n2, "+", n3, "+", n4)
         XCTAssertEqual(task.output, String(n1 + n2 + n3 + n4), task.input)
     }
-    
+
+    func testAddExtended() {
+        var task: calcProcess
+        
+        var nums: [Int] = []
+        var args: [String] = []
+        for _ in 0...20 {
+            let n = randomSource.nextInt(upperBound:10000) - 50000
+            nums.append(n)
+            if args.count > 0 {
+                args.append("+")
+            }
+            args.append(String(n))
+        }
+        let sum: Int = nums.reduce(0) { (a: Int, b: Int) -> Int in
+            a + b
+        }
+        task = calcProcess(args)
+        XCTAssertEqual(task.output, String(sum), task.input)
+    }
+
     func testSubtract() {
         var task: calcProcess
         let n1 = randomSource.nextInt(upperBound:100)
@@ -178,8 +254,47 @@ class CalcTest: XCTestCase {
         
         task = calcProcess(n1, "-", n2, "-", n3, "-", n4)
         XCTAssertEqual(task.output, String(n1 - n2 - n3 - n4), task.input)
+        
+        var nums: [Int] = []
+        var args: [String] = []
+        for _ in 0...20 {
+            let n = randomSource.nextInt(upperBound:10000) - 5000
+            nums.append(n)
+            if args.count > 0 {
+                args.append("-")
+            }
+            args.append(String(n))
+        }
+        let sum: Int = nums[1...].reduce(nums[0]) { (a: Int, b: Int) -> Int in
+            a - b
+        }
+        task = calcProcess(args)
+        XCTAssertEqual(task.output, String(sum), task.input)
     }
+
     
+    func testSubtractExtended() {
+        var task: calcProcess
+        
+        var nums: [Int] = []
+        var args: [String] = []
+        for _ in 0...20 {
+            let n = randomSource.nextInt(upperBound:10000) - 5000
+            nums.append(n)
+            if args.count > 0 {
+                args.append("-")
+            }
+            args.append(String(n))
+        }
+        let sum: Int = nums[1...].reduce(nums[0]) { (a: Int, b: Int) -> Int in
+            a - b
+        }
+        task = calcProcess(args)
+        XCTAssertEqual(task.output, String(sum), task.input)
+    }
+
+
+
     func testMultiply() {
         var task: calcProcess
         let n1 = randomSource.nextInt(upperBound:100)+1
@@ -198,6 +313,27 @@ class CalcTest: XCTestCase {
         task = calcProcess(n1, "x", n2, "x", n3)
         XCTAssertEqual(task.output, String(n1 * n2 * n3), task.input)
     }
+    
+    func testMultiplyExtended() {
+        var task: calcProcess
+        
+        var nums: [Int] = []
+        var args: [String] = []
+        for _ in 0...10 {
+            let n = randomSource.nextInt(upperBound:20)+1
+            nums.append(n)
+            if args.count > 0 {
+                args.append("x")
+            }
+            args.append(String(n))
+        }
+        let sum: Int = nums.reduce(1) { (a: Int, b: Int) -> Int in
+            a * b
+        }
+        task = calcProcess(args)
+        XCTAssertEqual(task.output, String(sum), task.input)
+    }
+    
     
     func testDivide() {
         var task: calcProcess
@@ -305,10 +441,20 @@ class CalcTest: XCTestCase {
         
         let n8 = randomSource.nextInt(upperBound:10)
         let n9 = randomSource.nextInt(upperBound:10)
-        let task4 = calcProcess(n8, "-", n9, "+", 7, "/", 3, "x", 5, "%", 3)
-        XCTAssertEqual(task4.output, String(n8 - n9 + (((7/3) * 5) % 3)), task4.input)
+        // ((7/3) * 5) % 3
+        let n10 = 7
+        let n11 = 3
+        let n12 = 5
+        let n13 = 3
+        let task4 = calcProcess(n8, "-", n9, "+", n10, "/", n11, "x", n12, "%", n13)
+        XCTAssertEqual(task4.output, String(n8 - n9 + (((n10/n11) * n12) % n13)), task4.input)
+        
+        // 1 + 2 + 3 x 4 / 2 + 5 + 6 / 2 x 7 + 8
+        let expected = 1 + 2 + ((3 * 4) / 2) + 5 + ((6 / 2) * 7) + 8
+        let task6 = calcProcess(1, "+", 2, "+", 3, "x", 4, "/", 2, "+", 5, "+", 6, "/", 2, "x", 7, "+", 8)
+        XCTAssertEqual(task6.output, String(expected), task6.input)
     }
-    
+
     func testOutOfBounds() {
         let support64bit = (calcProcess(Int.max).output == String(Int.max))
         var min = Int.min
@@ -347,3 +493,5 @@ class CalcTest: XCTestCase {
         XCTAssertNotNil(task6.status, "Error on integer underflow: \(task6.input)")
     }
 }
+
+
