@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "C47799DA-E467-410A-90CC-8B3A5DC7E98C"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A4C9B040-BFB1-4D1C-A1CF-8C7F1545A60F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Bubble-Pop/StartView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "15"
+            endingLineNumber = "15"
+            landmarkName = "StartViewController"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "A4C9B040-BFB1-4D1C-A1CF-8C7F1545A60F - 385a0b14180c5b51"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Bubble_Pop.StartViewController.playerName.getter : Swift.Optional&lt;__C.UITextField&gt;"
+                  moduleName = "Bubble-Pop"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/blue/Desktop/Bubble-Pop/Bubble-Pop/StartView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "16"
+                  endingLineNumber = "16"
+                  offsetFromSymbolStart = "88">
+               </Location>
+               <Location
+                  uuid = "A4C9B040-BFB1-4D1C-A1CF-8C7F1545A60F - 70ab06d8c3e27745"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Bubble_Pop.StartViewController.playerName.setter : Swift.Optional&lt;__C.UITextField&gt;"
+                  moduleName = "Bubble-Pop"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/blue/Desktop/Bubble-Pop/Bubble-Pop/StartView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "16"
+                  endingLineNumber = "16"
+                  offsetFromSymbolStart = "155">
+               </Location>
+               <Location
+                  uuid = "A4C9B040-BFB1-4D1C-A1CF-8C7F1545A60F - 74555b34f5ccb9a2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Bubble_Pop.StartViewController.playerName.modify : Swift.Optional&lt;__C.UITextField&gt;"
+                  moduleName = "Bubble-Pop"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/blue/Desktop/Bubble-Pop/Bubble-Pop/StartView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "59">
+               </Location>
+               <Location
+                  uuid = "A4C9B040-BFB1-4D1C-A1CF-8C7F1545A60F - 863cb8d81c3bdb34"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Bubble_Pop.StartViewController.playerName.modify : Swift.Optional&lt;__C.UITextField&gt; with unmangled suffix &quot;.resume.0&quot;"
+                  moduleName = "Bubble-Pop"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/blue/Desktop/Bubble-Pop/Bubble-Pop/StartView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "16"
+                  endingLineNumber = "16"
+                  offsetFromSymbolStart = "64">
+               </Location>
+               <Location
+                  uuid = "A4C9B040-BFB1-4D1C-A1CF-8C7F1545A60F - d605384fa2be2333"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Bubble_Pop.StartViewController.init(nibName: Swift.Optional&lt;Swift.String&gt;, bundle: Swift.Optional&lt;__C.NSBundle&gt;) -&gt; Bubble_Pop.StartViewController"
+                  moduleName = "Bubble-Pop"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/blue/Desktop/Bubble-Pop/Bubble-Pop/StartView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "16"
+                  endingLineNumber = "16"
+                  offsetFromSymbolStart = "554">
+               </Location>
+               <Location
+                  uuid = "A4C9B040-BFB1-4D1C-A1CF-8C7F1545A60F - 4eff5da9fcfa633c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Bubble_Pop.StartViewController.init(coder: __C.NSCoder) -&gt; Swift.Optional&lt;Bubble_Pop.StartViewController&gt;"
+                  moduleName = "Bubble-Pop"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/blue/Desktop/Bubble-Pop/Bubble-Pop/StartView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "16"
+                  endingLineNumber = "16"
+                  offsetFromSymbolStart = "495">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
